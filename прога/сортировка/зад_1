@@ -7,10 +7,6 @@ struct square {
     string path;
 };
 
-struct queue {
-    square inf;
-    queue* next;
-};
 
 // добавление элемента в очередь
 void push(queue*& head, queue*& tail, square x) {
