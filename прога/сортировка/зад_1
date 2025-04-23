@@ -1,1 +1,100 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct square {
+    int x, y; // координаты клетки
+    string path;
+};
+
+struct queue {
+    square inf;
+    queue* next;
+};
+
+// добавление элемента в очередь
+void push(queue*& head, queue*& tail, square x) {
+    queue* r = new queue;
+    r->inf = x;
+    r->next = NULL;
+    if (!head) {
+        head = tail = r;
+    }
+    else {
+        tail->next = r;
+        tail = r;
+    }
+}
+
+// извлечение из начала очереди
+square pop(queue*& head) {
+    square x = head->inf;
+    queue* r = head;
+    head = head->next;
+    delete r;
+    return x;
+}
+
+// проверка на то, находится ли координата внутри доски
+static bool inside(int x, int y) {
+    return x >= 0 && x < 8 && y >= 0 && y < 8;
+}
+
+// преобразование в строку из координат
+static string Tocell(int x, int y) {
+    return string(1, 'A' + y) + to_string(8 - x);
+}
+
+// преобразование строки в координаты
+void cellTo(const string& s, int& x, int& y) {
+    y = s[0] - 'A';
+    x = 8 - (s[1] - '0');
+}
+
+// поиск пути
+void findway(string startStr, string endStr) {
+    int dx[] = { -2,-1,1,2,2,1,-1,-2 }; // возможные ходя коня
+    int dy[] = { 1,2,2,1,-1,-2,-2,-1 };
+
+    int sx, sy, ex, ey;
+    cellTo(startStr, sx, sy);
+    cellTo(endStr, ex, ey);
+
+    bool visit[8][8] = { false };
+    queue* head = NULL;
+    queue* tail = NULL;
+
+    push(head, tail, { sx, sy, startStr });
+    visit[sx][sy] = true;
+
+    while (head) {
+        square current = pop(head);
+        if (current.x == ex && current.y == ey) {
+            cout << current.path << endl;
+            return;
+        }
+
+        for (int i = 0; i < 8; i++) {
+            int nx = current.x + dx[i];
+            int ny = current.y + dy[i];
+            if (inside(nx, ny) && !visit[nx][ny]) {
+                visit[nx][ny] = true;
+                string newPath = current.path + " " + Tocell(nx, ny);
+                push(head, tail, { nx, ny, newPath });
+            }
+        }
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "RU");
+    string a, b;
+    cout << "Введите начальную клетку (A + цифра без пробела): ";
+    cin >> a;
+    cout << "Введите конечную клетку (B + цифра без пробела): ";
+    cin >> b;
+
+    findway(a, b);
+    return 0;
+}
 
